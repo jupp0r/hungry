@@ -20,6 +20,7 @@ updateView = ->
   $topPage = $ '<div data-role="page" id="mensalist">
     <div data-role="header">
       <h1>Mensen</h1>
+      <a href="#options" data-icon="gear" class="ui-btn-right">Options</a>
     </div>'
   $topContent = $ '<div data-role="content">'
   $topList = $ '<ul>',
@@ -45,19 +46,19 @@ updateView = ->
     $topPage.appendTo $updatedView
   for mensa_name, mensa_essen_list of speiseplan.mensen
     mensa_id = mensa_str_to_id mensa_name
-    $mensaView = $ "<div data-role=\"page\" id=\"#{mensa_id}\">
+    $mensaView = $ "<div data-role=\"page\" id=\"#{mensa_id}\" data-add-back-btn=\"true\">
       <div data-role=\"header\"><h1>#{mensa_name}</h1></div>
-      <div data-role=\"content\">
-        <ul title=\"#{mensa_name}\" data-role=\"listview\">"
+      <div data-role=\"content\">"
+    $mensaList = $ "<ul title=\"#{mensa_name}\" data-role=\"listview\">"
     for speise in mensa_essen_list
       $speiseView = $ '<li>'
-        id: speise.name
         "class": "speise"
         text: "#{speise.name} " + ("#{group}: #{price}" for group, price of speise.prices).join ", "
-      $speiseView.appendTo($mensaView).trigger "create"
+      $speiseView.appendTo $mensaList
+    $mensaList.appendTo $mensaView
     if $("##{mensa_id}").length
       console.log "replacing page #{mensa_id}"
-      $("##{mensa_id}").replaceWith $topPage
+      $("##{mensa_id}").replaceWith $mensaView
     else
       console.log "appending page #{mensa_id}"
       $mensaView.appendTo $updatedView
@@ -99,11 +100,13 @@ detailsGetReady = (data) ->
       essen.zutaten.push $(@).text()
   speiseplan.mensen[@.mensa_name].push essen
   ajax_count_completed++
+  updateProgress ajax_count_completed, @.num_queries
   if @.num_queries == ajax_count_completed
     updateView()
     updateModel()
-    $.mobile.changePage($ '#mensalist')
-
+    $.mobile.changePage $ '#mensalist',
+      changeHash: true
+      transition: "pop"
 parse_prices = (price_str) ->
   prices = {}
   if /ausverkauft/.test price_str
@@ -123,3 +126,6 @@ parse_prices = (price_str) ->
 
 mensa_str_to_id = (mensa_str) ->
   mensa_str.replace /\s+/, "-"
+
+updateProgress = (have, full) ->
+  $("#progress").text(Math.round ((have / full) * 100))
