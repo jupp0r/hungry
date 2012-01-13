@@ -2,8 +2,8 @@ Hungry
 =====
 
 A small Web App for all those annoyed with the webpage of Studentenwerk Dresden.
-The idea is that all you need to pick the tastiest food for the campus day is one quick
-glance.
+The idea is that you are able to pick the tastiest food for the campus day
+in one quick glance.
 
 Installation
 ========
@@ -30,3 +30,9 @@ I'm using the following frameworks:
 * jquery
 * jquery mobile
 * jstorage
+
+Known Issues
+=========
+
+* for some stupid reason, Chrome does not allow you to do AJAX calls to remote computers if the .html file is hosted locally, there is a bug for it, though
+* see issues
