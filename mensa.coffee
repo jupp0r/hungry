@@ -104,9 +104,8 @@ detailsGetReady = (data) ->
   if @.num_queries == ajax_count_completed
     updateView()
     updateModel()
-    $.mobile.changePage $ '#mensalist',
-      changeHash: true
-      transition: "pop"
+    $.mobile.changePage $ '#mensalist'
+
 parse_prices = (price_str) ->
   prices = {}
   if /ausverkauft/.test price_str
