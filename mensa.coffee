@@ -1,14 +1,21 @@
 speiseplan = null
-state = {}
 ajax_count_completed = 0
+defaultsettings =
+  flatview: true
+settings = null
+settingschanged = false
 
 String::strip = ->
   @replace(/(^\s+)|(\s+$)/gm, "").replace /(\r|\n|r\n)/gm, ""
+
 $(document).ready ->
-  state.loading = true
   speiseplan =
     date: ""
     mensen: {}
+  console.log "loading settings ..."
+  loadSettings()
+  console.log settings
+  setupOptionScreen()
   console.log "getting feed ..."
   $.get "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss", loadSpeiseplan
 
@@ -19,7 +26,11 @@ updateModel = ->
 # Update Main Page
 updateView = ->
   $updatedView = $.mobile.pageContainer
-  buildFlatView $updatedView
+  if settings.flatview
+    buildFlatView $updatedView
+  else
+    buildNestedView $updatedView
+
 
 buildFlatView = ($updatedView) ->
   $topPage = $ '<div data-role="page" id="mensalist">
@@ -141,6 +152,7 @@ detailsGetReady = (data) ->
   if @.num_queries == ajax_count_completed
     updateView()
     updateModel()
+    $('#mensalist').on "pagebeforeshow", checkForNewView
     $.mobile.changePage '#mensalist'
 
 parse_prices = (price_str) ->
@@ -165,3 +177,28 @@ mensa_str_to_id = (mensa_str) ->
 
 updateProgress = (have, full) ->
   $("#progress").text(Math.round ((have / full) * 100))
+
+loadSettings = ->
+  settings = $.jStorage.get "settings", defaultsettings
+
+saveSettings = ->
+  $.jStorage.set "settings", settings
+
+setupOptionScreen = ->
+  $('#options #viewslider').on "change", viewSliderChange
+  updateOptionScreenWithSettings()
+
+updateOptionScreenWithSettings = ->
+  $('#options #viewslider #flat').attr "selected", settings.flatview
+  $('#options #viewslider #nested').attr "selected", not settings.flatview
+
+viewSliderChange = (event) ->
+  newval = $(event.currentTarget).find("flat").attr("selected")
+  console.log "change!" + newval
+  settings.flatview = newval
+  saveSettings()
+  settingschanged = true
+
+checkForNewView = (event) ->
+  updateView() if settingschanged
+  settingschanged = false
