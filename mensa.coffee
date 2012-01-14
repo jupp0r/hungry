@@ -107,7 +107,7 @@ detailsGetReady = (data) ->
   if @.num_queries == ajax_count_completed
     updateView()
     updateModel()
-    $.mobile.changePage $ '#mensalist'
+    $.mobile.changePage '#mensalist'
 
 parse_prices = (price_str) ->
   prices = {}
