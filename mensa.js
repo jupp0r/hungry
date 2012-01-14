@@ -27,7 +27,7 @@
     console.log(settings);
     setupOptionScreen();
     console.log("getting feed ...");
-    return $.ajax({
+    return jQuery.ajax({
       url: "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss",
       success: loadSpeiseplan,
       method: "GET"
@@ -183,7 +183,7 @@
   };
 
   parseDetailsUrl = function(details_url, mensa_context) {
-    return $.ajax({
+    return jQuery.ajax({
       url: details_url,
       context: mensa_context,
       success: detailsGetReady,
