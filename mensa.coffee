@@ -12,6 +12,7 @@ $(document).ready ->
   console.log "getting feed ..."
   $.get "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss", loadSpeiseplan
 
+# Update Model (sync with localstore)
 updateModel = ->
 
 # Update Main Page
@@ -50,6 +51,7 @@ updateView = ->
       <div data-role=\"header\"><h1>#{mensa_name}</h1></div>
       <div data-role=\"content\">"
     $mensaList = $ "<ul title=\"#{mensa_name}\" data-role=\"listview\">"
+    console.log mensa_essen_list
     for speise in mensa_essen_list
       $speiseView = $ '<li>'
         "class": "speise"
@@ -62,6 +64,7 @@ updateView = ->
     else
       console.log "appending page #{mensa_id}"
       $mensaView.appendTo $updatedView
+    console.log speiseplan
 
 # load speiseplan from Studentenwerk RSS Feed
 loadSpeiseplan = (xml) ->
@@ -75,7 +78,7 @@ loadSpeiseplan = (xml) ->
     console.log "Parsing url #{i} of #{$items.length}"
     parseDetailsUrl details_url,
       mensa_name: mensa_str
-      num_queries: $items.length - 1
+      num_queries: $items.length
 
 parseDetailsUrl = (details_url, mensa_context) ->
   $.ajax
