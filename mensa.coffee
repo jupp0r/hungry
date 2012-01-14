@@ -17,7 +17,10 @@ $(document).ready ->
   console.log settings
   setupOptionScreen()
   console.log "getting feed ..."
-  $.get "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss", loadSpeiseplan
+  $.ajax
+    url: "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss"
+    success: loadSpeiseplan
+    method: "GET"
 
 # Update Model (sync with localstore)
 updateModel = ->
