@@ -21,6 +21,7 @@ $(document).ready ->
     url: "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss"
     success: loadSpeiseplan
     method: "GET"
+    dataType: "xml"
 
 # Update Model (sync with localstore)
 updateModel = ->
