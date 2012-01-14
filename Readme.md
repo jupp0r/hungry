@@ -27,12 +27,12 @@ Tech Stuff
 The main part of the project is contained in mensa.coffe
 
 I'm using the following frameworks:
-* jquery
-* jquery mobile
-* jstorage
+-   jquery
+-   jquery mobile
+-   jstorage
 
 Known Issues
 =========
 
-* for some stupid reason, Chrome does not allow you to do AJAX calls to remote computers if the .html file is hosted locally, there is a bug for it, though
-* see issues
+-   for some stupid reason, Chrome does not allow you to do AJAX calls to remote computers if the .html file is hosted locally, there is a bug for it, though
+-   see issues
