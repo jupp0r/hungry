@@ -30,7 +30,8 @@
     return jQuery.ajax({
       url: "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss",
       success: loadSpeiseplan,
-      method: "GET"
+      method: "GET",
+      dataType: "xml"
     });
   });
 
