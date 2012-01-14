@@ -14,10 +14,37 @@ $(document).ready ->
 
 # Update Model (sync with localstore)
 updateModel = ->
+  console.log speiseplan
 
 # Update Main Page
 updateView = ->
   $updatedView = $.mobile.pageContainer
+  buildFlatView $updatedView
+
+buildFlatView = ($updatedView) ->
+  $topPage = $ '<div data-role="page" id="mensalist">
+    <div data-role="header">
+      <h1>Speiseplan</h2>
+      <a href="#options" data-icon="gear" class="ui-btn-right">Options</a>
+    </div>'
+  $topContent = $ '<div data-role="content">'
+  $topList = $ '<ul>'
+    title: "Speiseplan"
+    id: "mainlist"
+    "data-role": "listview"
+    "data-inset": true
+  for mensa_name, mensa_essen_list of speiseplan.mensen
+    $mensadivider = $ '<li>'
+      "data-role": "list-divider"
+      text: mensa_name
+    $mensadivider.appendTo $topList
+    buildSpeiseLiView mensa_essen_list, $topList
+  console.log "bla"
+  $topList.appendTo($topContent).trigger "create"
+  $topContent.appendTo $topPage
+  $topPage.appendTo $updatedView
+
+buildNestedView = ($updatedView) ->
   $topPage = $ '<div data-role="page" id="mensalist">
     <div data-role="header">
       <h1>Mensen</h1>
@@ -51,12 +78,7 @@ updateView = ->
       <div data-role=\"header\"><h1>#{mensa_name}</h1></div>
       <div data-role=\"content\">"
     $mensaList = $ "<ul title=\"#{mensa_name}\" data-role=\"listview\">"
-    console.log mensa_essen_list
-    for speise in mensa_essen_list
-      $speiseView = $ '<li>'
-        "class": "speise"
-        text: "#{speise.name} " + ("#{group}: #{price}" for group, price of speise.prices).join ", "
-      $speiseView.appendTo $mensaList
+    buildSpeiseLiView mensa_essen_list, $mensaList
     $mensaList.appendTo $mensaView
     if $("##{mensa_id}").length
       console.log "replacing page #{mensa_id}"
@@ -64,7 +86,19 @@ updateView = ->
     else
       console.log "appending page #{mensa_id}"
       $mensaView.appendTo $updatedView
-    console.log speiseplan
+
+buildSpeiseLiView = (mensa_essen_list, $view) ->
+  for speise in mensa_essen_list
+      $speiseView = $ '<li>'
+      $speiseTitleView = $ '<h3>'
+        text: speise.name
+      $speiseDetailsView = $ '<p>'
+        text: speise.zutaten.join ", "
+      $speisePriceView = $('<p class="ui-li-aside">' + ("#{group}: #{price}" for group, price of speise.prices).join("<br />") + '</p>')
+      $speiseTitleView.appendTo $speiseView
+      $speiseDetailsView.appendTo $speiseView
+      $speisePriceView.appendTo $speiseView
+      $speiseView.appendTo $view
 
 # load speiseplan from Studentenwerk RSS Feed
 loadSpeiseplan = (xml) ->
@@ -98,7 +132,7 @@ detailsGetReady = (data) ->
     img_thumb_url: $("a#essenfoto", data)?.find("img")?.attr("src")? ? "nf"
     prices: parse_prices price_str
     zutaten: []
-  $("ul#speiseplaninfos", data).each ->
+  $("ul.speiseplaninfos", data).each ->
     $("li", @).each ->
       essen.zutaten.push $(@).text()
   speiseplan.mensen[@.mensa_name].push essen
