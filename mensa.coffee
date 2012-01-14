@@ -17,7 +17,7 @@ $(document).ready ->
   console.log settings
   setupOptionScreen()
   console.log "getting feed ..."
-  $.ajax
+  jQuery.ajax
     url: "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss"
     success: loadSpeiseplan
     method: "GET"
@@ -129,7 +129,7 @@ loadSpeiseplan = (xml) ->
       num_queries: $items.length
 
 parseDetailsUrl = (details_url, mensa_context) ->
-  $.ajax
+  jQuery.ajax
     url: details_url
     context: mensa_context
     success: detailsGetReady
