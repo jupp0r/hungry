@@ -2,7 +2,9 @@ CACHE MANIFEST
 index.html
 mensa.js
 mensa.css
-http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js
-http://www.jstorage.info/static/jstorage.js
-http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css
-http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.js
+jquery.js
+jstorage.js
+jquery.mobile-1.0.css
+jquery.mobile-1.0.js
+jquery.json-2.3.js
+jquery.xdomainajax.js
