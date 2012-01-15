@@ -17,11 +17,14 @@ $(document).ready ->
   console.log settings
   setupOptionScreen()
   console.log "getting feed ..."
-  jQuery.ajax
-    url: "http://www.studentenwerk-dresden.de/feeds/speiseplan.rss"
+  $.ajax
+    url: "http://query.yahooapis.com/v1/public/yql"
+    data:
+      q: 'select * from xml where url="http://www.studentenwerk-dresden.de/feeds/speiseplan.rss"'
+      format: "json"
     success: loadSpeiseplan
     method: "GET"
-    dataType: "xml"
+    dataType: "jsonp"
 
 # Update Model (sync with localstore)
 updateModel = ->
@@ -90,11 +93,12 @@ buildNestedView = ($updatedView) ->
   for mensa_name, mensa_essen_list of speiseplan.mensen
     mensa_id = mensa_str_to_id mensa_name
     $mensaView = $ "<div data-role=\"page\" id=\"#{mensa_id}\" data-add-back-btn=\"true\">
-      <div data-role=\"header\"><h1>#{mensa_name}</h1></div>
-      <div data-role=\"content\">"
+      <div data-role=\"header\"><h1>#{mensa_name}</h1></div>"
+    $mensaContent = $ "<div data-role=\"content\">"
     $mensaList = $ "<ul title=\"#{mensa_name}\" data-role=\"listview\">"
     buildSpeiseLiView mensa_essen_list, $mensaList
-    $mensaList.appendTo $mensaView
+    $mensaList.appendTo $mensaContent
+    $mensaContent.appendTo $mensaView
     if $("##{mensa_id}").length
       console.log "replacing page #{mensa_id}"
       $("##{mensa_id}").replaceWith $mensaView
@@ -116,40 +120,48 @@ buildSpeiseLiView = (mensa_essen_list, $view) ->
       $speiseView.appendTo $view
 
 # load speiseplan from Studentenwerk RSS Feed
-loadSpeiseplan = (xml) ->
-  console.log "Loading Speiseplan ..."
-  speiseplan.date = $(xml).find("pubDate").text()
-  $items = $(xml).find('item')
-  $items.each (i, elem) ->
-    mensa_str = $(@).find("author").text()
-    details_url = $(@).find("link").text()
+loadSpeiseplan = (data) ->
+  speiseplan.date = data.query.results.rss.channel.pubDate
+  items = data.query.results.rss.channel.item
+  i = 0
+  console.log items
+  for elem in items
+    mensa_str = elem.author
+    details_url = elem.link
     speiseplan.mensen[mensa_str] = []
-    console.log "Parsing url #{i} of #{$items.length}"
+    console.log "Parsing url #{i+1} of #{items.length}"
     parseDetailsUrl details_url,
       mensa_name: mensa_str
-      num_queries: $items.length
+      num_queries: items.length
+    i++
 
 parseDetailsUrl = (details_url, mensa_context) ->
-  jQuery.ajax
-    url: details_url
+  console.log "bla"
+  $.ajax
+    url: 'http://query.yahooapis.com/v1/public/yql'
+    data:
+      q: "select * from html where url=\"#{details_url}\""
+      format: "json"
     context: mensa_context
     success: detailsGetReady
+    error: ->
+      console.log "error"
     type: "GET"
-    dataType: "xml"
-    contentType: "text/html"
+    dataType: "jsonp"
 
 detailsGetReady = (data) ->
-  price_str = $("div#preise", data)?.text()?.replace(/Preise\[.*\]\s*:/, "").strip() ? "nf"
+  price_str = jsonPath(data,
+  "$..div[?(@.id==preise)].p")?.replace(/Preise\[.*\]\s*:/,
+  "").strip() ? "nf"
   essen =
-    name: $("div#speiseplanessentext", data).text() ? "nf"
+    name: jsonPath(data, "$..div[?(@.id=speiseplanessentext)].p") ? "nf"
     mensa: @.mensa_name
-    img_full_url: $("a#essenfoto", data)?.attr("href")? ? "nf"
-    img_thumb_url: $("a#essenfoto", data)?.find("img")?.attr("src")? ? "nf"
+    img_full_url: jsonPath(data, "$..div[?(@.id==essenbild)]..a.href") ? "nf"
+    img_thumb_url: jsonPath(data, "$..div[?(@.id==essenbild)]..img.src") ? "nf"
     prices: parse_prices price_str
     zutaten: []
-  $("ul.speiseplaninfos", data).each ->
-    $("li", @).each ->
-      essen.zutaten.push $(@).text()
+  for infos in jsonPath(data, "$..ul[?(@.class==speiseplaninfos)].li[*].p")
+      essen.zutaten.push infos
   speiseplan.mensen[@.mensa_name].push essen
   ajax_count_completed++
   updateProgress ajax_count_completed, @.num_queries
